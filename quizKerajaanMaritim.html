@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Kerajaan Maritim Islam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .quiz-content {
+            padding: 30px 20px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .option-label {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            flex: 1;
+            color: #333;
+        }
+
+        .option.selected {
+            background: #e7e9ff;
+            border-color: #667eea;
+        }
+
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-next {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .result-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .result-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn-restart {
+            background: #667eea;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-restart:hover {
+            background: #5568d3;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕌 Quiz Kerajaan Maritim Islam</h1>
+            <p>40 Soal tentang Sejarah Kerajaan Islam di Indonesia</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="quiz-content" id="quizContent"></div>
+    </div>
+
+    <script>
+        const quizData = [
+            {q: "Kerajaan Islam pertama di Indonesia adalah …", options: ["Aceh Darussalam", "Demak", "Samudera Pasai", "Cirebon"], correct: "Samudera Pasai"},
+            {q: "Pendiri Kerajaan Samudera Pasai adalah …", options: ["Sultan Iskandar Muda", "Sultan Malik as-Saleh", "Sultan Alauddin", "Raden Patah"], correct: "Sultan Malik as-Saleh"},
+            {q: "Samudera Pasai berkembang pesat karena letaknya di …", options: ["Teluk Tomini", "Selat Sunda", "Selat Malaka", "Laut Banda"], correct: "Selat Malaka"},
+            {q: "Sultan Iskandar Muda berkuasa di Kerajaan …", options: ["Demak", "Banten", "Aceh Darussalam", "Gowa-Tallo"], correct: "Aceh Darussalam"},
+            {q: "Kerajaan Islam pertama di Pulau Jawa adalah …", options: ["Banten", "Demak", "Cirebon", "Pajang"], correct: "Demak"},
+            {q: "Raden Patah merupakan pendiri Kerajaan …", options: ["Demak", "Cirebon", "Banten", "Pajang"], correct: "Demak"},
+            {q: "Ekspedisi Demak ke Malaka dipimpin oleh …", options: ["Sunan Gunung Jati", "Sultan Trenggana", "Adipati Unus", "Fatahillah"], correct: "Adipati Unus"},
+            {q: "Sunda Kelapa diganti namanya menjadi Jayakarta oleh …", options: ["Sultan Ageng Tirtayasa", "Fatahillah", "Adipati Unus", "Sultan Trenggana"], correct: "Fatahillah"},
+            {q: "Kerajaan Banten didirikan oleh …", options: ["Raden Patah", "Sunan Gunung Jati", "Maulana Hasanuddin", "Sultan Ageng Tirtayasa"], correct: "Maulana Hasanuddin"},
+            {q: "Komoditas utama perdagangan Banten adalah …", options: ["Cengkeh", "Lada", "Pala", "Kapas"], correct: "Lada"},
+            {q: "Raja besar Banten yang menentang VOC adalah …", options: ["Sultan Ageng Tirtayasa", "Sultan Hasanuddin", "Sultan Baabullah", "Sultan Alauddin"], correct: "Sultan Ageng Tirtayasa"},
+            {q: "Sunan Gunung Jati adalah tokoh penting dalam penyebaran Islam di …", options: ["Banten dan Cirebon", "Aceh dan Demak", "Ternate dan Tidore", "Gowa dan Bone"], correct: "Banten dan Cirebon"},
+            {q: "Kerajaan Cirebon didirikan oleh …", options: ["Pangeran Diponegoro", "Walangsungsang", "Sultan Agung", "Sultan Trenggana"], correct: "Walangsungsang"},
+            {q: "Kerajaan Ternate berada di wilayah …", options: ["Sumatra Barat", "Maluku Utara", "Sulawesi Selatan", "Kalimantan Timur"], correct: "Maluku Utara"},
+            {q: "Komoditas utama perdagangan di Ternate adalah …", options: ["Lada", "Cengkeh", "Kopi", "Beras"], correct: "Cengkeh"},
+            {q: "Sultan terkenal dari Ternate yang mengusir Portugis adalah …", options: ["Sultan Baabullah", "Sultan Nuku", "Sultan Hasanuddin", "Sultan Alauddin"], correct: "Sultan Baabullah"},
+            {q: "Kerajaan Tidore mencapai puncak kejayaan pada masa …", options: ["Sultan Nuku Muhammad Amiruddin", "Sultan Baabullah", "Sultan Iskandar Muda", "Sultan Hasanuddin"], correct: "Sultan Nuku Muhammad Amiruddin"},
+            {q: "Kerajaan Gowa-Tallo terletak di …", options: ["Sulawesi Selatan", "Sulawesi Utara", "Nusa Tenggara Timur", "Maluku Tengah"], correct: "Sulawesi Selatan"},
+            {q: "Raja Gowa pertama yang memeluk Islam bergelar …", options: ["Sultan Hasanuddin", "Sultan Alauddin", "Sultan Ageng", "Sultan Baabullah"], correct: "Sultan Alauddin"},
+            {q: "Sultan Hasanuddin dikenal dengan julukan …", options: ["Ayam Jantan dari Timur", "Harimau Sumatra", "Elang Makassar", "Singa Laut Selatan"], correct: "Ayam Jantan dari Timur"},
+            {q: "Pelabuhan utama Kerajaan Gowa-Tallo adalah …", options: ["Sunda Kelapa", "Somba Opu", "Jayakarta", "Ternate"], correct: "Somba Opu"},
+            {q: "Tujuan utama bangsa Eropa datang ke Nusantara adalah …", options: ["Menyebarkan agama", "Mencari rempah-rempah", "Menaklukkan kerajaan", "Membuka perkebunan"], correct: "Mencari rempah-rempah"},
+            {q: "Kerajaan Islam di Indonesia banyak berkembang di …", options: ["Pegunungan", "Pesisir pantai", "Pedalaman", "Hutan tropis"], correct: "Pesisir pantai"},
+            {q: "Jalur utama perdagangan pada masa kerajaan maritim adalah …", options: ["Jalur darat", "Jalur laut", "Jalur udara", "Jalur sungai"], correct: "Jalur laut"},
+            {q: "Faktor penting kejayaan kerajaan maritim Islam adalah …", options: ["Letak strategis dan perdagangan laut", "Dukungan VOC", "Pertanian yang melimpah", "Perang antar kerajaan"], correct: "Letak strategis dan perdagangan laut"},
+            {q: "Salah satu sebab kemunduran kerajaan maritim Islam adalah …", options: ["Persaingan dagang dengan bangsa Eropa", "Hasil bumi menurun", "Letak geografis buruk", "Tidak adanya pelabuhan"], correct: "Persaingan dagang dengan bangsa Eropa"},
+            {q: "Kerajaan Islam yang paling berpengaruh di Maluku adalah …", options: ["Tidore", "Ternate", "Bacan", "Jailolo"], correct: "Ternate"},
+            {q: "Sultan Nuku dikenal sebagai tokoh pejuang dari Kerajaan …", options: ["Ternate", "Tidore", "Aceh", "Banten"], correct: "Tidore"},
+            {q: "Kerajaan Aceh menjadi kuat karena menguasai perdagangan …", options: ["Padi dan kapas", "Rempah dan emas", "Beras dan kayu", "Lada dan kain"], correct: "Lada dan kain"},
+            {q: "Kerajaan Demak mencapai puncak kejayaan pada masa …", options: ["Adipati Unus", "Sultan Trenggana", "Raden Patah", "Sunan Kudus"], correct: "Sultan Trenggana"},
+            {q: "Kota Jayakarta kini dikenal dengan nama …", options: ["Surabaya", "Jakarta", "Semarang", "Cirebon"], correct: "Jakarta"},
+            {q: "Kerajaan Banten dan Cirebon merupakan pecahan dari kerajaan …", options: ["Demak", "Pajang", "Majapahit", "Tarumanegara"], correct: "Demak"},
+            {q: "Agama Islam berkembang pesat di wilayah pesisir karena …", options: ["Letaknya jauh dari pusat kerajaan Hindu", "Banyak pelabuhan dan pedagang asing", "Daerahnya subur", "Didorong oleh kerajaan Majapahit"], correct: "Banyak pelabuhan dan pedagang asing"},
+            {q: "Kerajaan Gowa-Tallo sering disebut juga sebagai …", options: ["Kerajaan Makassar", "Kerajaan Bugis", "Kerajaan Bone", "Kerajaan Buton"], correct: "Kerajaan Makassar"},
+            {q: "Kerajaan Islam yang berperan penting menyebarkan Islam ke Jawa Tengah dan Timur adalah …", options: ["Banten", "Demak", "Aceh", "Gowa-Tallo"], correct: "Demak"},
+            {q: "Salah satu hasil ekonomi utama Kerajaan Tidore adalah …", options: ["Cengkeh", "Lada", "Kopi", "Pala"], correct: "Cengkeh"},
+            {q: "Faktor utama yang menyebabkan Samudera Pasai mengalami kemunduran adalah …", options: ["Serangan Majapahit", "Kedatangan Portugis", "Perang saudara", "Kekeringan panjang"], correct: "Kedatangan Portugis"},
+            {q: "Sultan Alauddin dari Gowa-Tallo berperan dalam …", options: ["Membangun armada laut besar", "Menyebarkan Islam di Sulawesi", "Mengusir Portugis dari Makassar", "Menguasai Maluku"], correct: "Menyebarkan Islam di Sulawesi"},
+            {q: "Julukan \"Ayam Jantan dari Timur\" diberikan karena …", options: ["Keberanian melawan VOC", "Sifat keras kepala", "Menyebarkan Islam", "Menguasai perdagangan"], correct: "Keberanian melawan VOC"},
+            {q: "Kesamaan utama semua kerajaan maritim Islam di Nusantara adalah …", options: ["Berorientasi pada perdagangan laut", "Berbasis pertanian", "Tidak memiliki pelabuhan", "Menolak Islam"], correct: "Berorientasi pada perdagangan laut"}
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let answered = false;
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function displayQuestion() {
+            const question = quizData[currentQuestion];
+            const shuffledOptions = shuffleArray(question.options);
+            const labels = ['A', 'B', 'C', 'D'];
+            
+            const progressPercent = ((currentQuestion) / quizData.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+
+            const html = `
+                <div class="question-number">Soal ${currentQuestion + 1} dari ${quizData.length}</div>
+                <div class="question">${question.q}</div>
+                <div class="options">
+                    ${shuffledOptions.map((opt, idx) => `
+                        <div class="option" data-answer="${opt}">
+                            <div class="option-label">${labels[idx]}</div>
+                            <div class="option-text">${opt}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <div class="buttons">
+                    <button class="btn-submit" id="submitBtn" disabled>Cek Jawaban</button>
+                    <button class="btn-next" id="nextBtn" style="display: none;">Lanjut</button>
+                </div>
+            `;
+
+            document.getElementById('quizContent').innerHTML = html;
+
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.addEventListener('click', () => selectAnswer(option));
+            });
+
+            document.getElementById('submitBtn').addEventListener('click', checkAnswer);
+            document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+
+            selectedAnswer = null;
+            answered = false;
+        }
+
+        function selectAnswer(option) {
+            if (answered) return;
+
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            option.classList.add('selected');
+            selectedAnswer = option.getAttribute('data-answer');
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function checkAnswer() {
+            if (!selectedAnswer || answered) return;
+
+            answered = true;
+            const question = quizData[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(option => {
+                option.classList.add('disabled');
+                const answer = option.getAttribute('data-answer');
+                
+                if (answer === question.correct) {
+                    option.classList.add('correct');
+                }
+                
+                if (answer === selectedAnswer && answer !== question.correct) {
+                    option.classList.add('wrong');
+                }
+            });
+
+            if (selectedAnswer === question.correct) {
+                score++;
+                feedback.className = 'feedback correct show';
+                feedback.textContent = '✓ Benar! Jawaban Anda tepat.';
+            } else {
+                feedback.className = 'feedback wrong show';
+                feedback.textContent = `✗ Salah! Jawaban yang benar adalah: ${question.correct}`;
+            }
+
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < quizData.length) {
+                displayQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            const percentage = (score / quizData.length) * 100;
+            let icon, title, message;
+
+            if (percentage >= 90) {
+                icon = '🏆';
+                title = 'Luar Biasa!';
+                message = 'Anda sangat menguasai materi Kerajaan Maritim Islam!';
+            } else if (percentage >= 75) {
+                icon = '⭐';
+                title = 'Hebat!';
+                message = 'Pengetahuan Anda tentang sejarah sangat baik!';
+            } else if (percentage >= 60) {
+                icon = '👍';
+                title = 'Bagus!';
+                message = 'Anda cukup memahami materi ini.';
+            } else {
+                icon = '📚';
+                title = 'Terus Belajar!';
+                message = 'Mari pelajari lagi materi Kerajaan Maritim Islam.';
+            }
+
+            document.getElementById('progressBar').style.width = '100%';
+
+            const html = `
+                <div class="result-container">
+                    <div class="result-icon">${icon}</div>
+                    <div class="result-title">${title}</div>
+                    <div class="result-score">${score}/${quizData.length}</div>
+                    <div class="result-message">${message}<br>Nilai Anda: ${percentage.toFixed(0)}%</div>
+                    <button class="btn-restart" onclick="restartQuiz()">Ulangi Quiz</button>
+                </div>
+            `;
+
+            document.getElementById('quizContent').innerHTML = html;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            displayQuestion();
+        }
+
+        displayQuestion();
+    </script>
+</body>
+</html>
