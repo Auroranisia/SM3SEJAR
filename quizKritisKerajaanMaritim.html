@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Kerajaan Maritim Islam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #4ade80;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-content {
+            padding: 30px 20px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover {
+            background: #e0e7ff;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option-letter {
+            background: #667eea;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            flex: 1;
+            color: #374151;
+        }
+
+        .option.selected {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+
+        .option.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .option.correct .option-letter {
+            background: #10b981;
+        }
+
+        .option.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .option.wrong .option-letter {
+            background: #ef4444;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .button-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .result-score {
+            font-size: 72px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .result-text {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 30px;
+        }
+
+        .result-details {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .result-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .result-detail:last-child {
+            border-bottom: none;
+        }
+
+        .emoji {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            .result-score {
+                font-size: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧭 Quiz Kerajaan Maritim Islam</h1>
+            <div id="scoreDisplay">Skor: 0 / 40</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <div class="quiz-content" id="quizContent">
+            <!-- Quiz akan dimuat di sini -->
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Perkembangan pesat Samudera Pasai dipengaruhi oleh letaknya di jalur strategis perdagangan internasional. Kondisi ini menunjukkan pentingnya …",
+                options: ["kekuasaan politik", "letak geografis", "hasil pertanian", "kekuatan militer"],
+                correct: 1
+            },
+            {
+                question: "Samudera Pasai menjadi pusat penyebaran Islam di Nusantara karena …",
+                options: ["memiliki ulama dari Arab", "raja-raja menggunakan bahasa Arab", "menjadi transit pedagang Muslim dari luar", "menaklukkan kerajaan lain dengan perang"],
+                correct: 2
+            },
+            {
+                question: "Keberhasilan Aceh menjadi kerajaan besar pada masa Sultan Iskandar Muda menunjukkan bahwa …",
+                options: ["militer yang kuat menentukan kejayaan maritim", "hubungan diplomatik tidak diperlukan", "perdagangan laut tidak berpengaruh", "kejayaan hanya bergantung pada agama"],
+                correct: 0
+            },
+            {
+                question: "Ketika Portugis menguasai Malaka, Aceh menjadi alternatif pusat perdagangan. Hal ini menandakan …",
+                options: ["Aceh bergantung pada Malaka", "kolonialisme justru membuka peluang bagi kerajaan lain", "perdagangan Islam menurun drastis", "kerajaan lokal tidak mampu bersaing"],
+                correct: 1
+            },
+            {
+                question: "Peran Raden Patah dalam sejarah Indonesia menunjukkan …",
+                options: ["keberhasilan tokoh lokal melawan dominasi Hindu-Buddha", "pentingnya ekspansi militer", "kemunduran Majapahit akibat konflik agama", "munculnya sistem kerajaan demokratis"],
+                correct: 0
+            },
+            {
+                question: "Ekspedisi Demak ke Malaka memperlihatkan bahwa kerajaan maritim Islam …",
+                options: ["aktif dalam penyebaran Islam", "berorientasi pada perdagangan dan politik internasional", "lebih fokus pada pertanian", "menolak campur tangan luar negeri"],
+                correct: 1
+            },
+            {
+                question: "Penguasaan Sunda Kelapa oleh Fatahillah menjadi simbol …",
+                options: ["penyatuan kekuasaan politik dan agama Islam di Jawa", "perebutan kekuasaan internal Demak", "kegagalan Portugis menguasai Jawa", "jatuhnya pengaruh Cirebon"],
+                correct: 0
+            },
+            {
+                question: "Faktor utama Banten menjadi pelabuhan internasional adalah …",
+                options: ["pengaruh Demak", "lokasi strategis di Selat Sunda", "adanya perlindungan VOC", "tanahnya subur"],
+                correct: 1
+            },
+            {
+                question: "Keberhasilan Banten melawan VOC di masa Sultan Ageng Tirtayasa menunjukkan bahwa …",
+                options: ["kekuatan militer lokal mampu menandingi kolonial", "VOC memiliki kekuatan kecil", "kerajaan Islam menolak berdagang", "perdagangan laut tidak penting"],
+                correct: 0
+            },
+            {
+                question: "Keruntuhan Banten menunjukkan lemahnya faktor …",
+                options: ["ekonomi dan politik internal", "hubungan internasional", "hasil pertanian", "militer laut"],
+                correct: 0
+            },
+            {
+                question: "Pusat kegiatan ekonomi Kerajaan Cirebon di pelabuhan menunjukkan bahwa …",
+                options: ["masyarakat pesisir terbuka terhadap budaya luar", "kerajaan maritim tertutup dari pengaruh asing", "pelabuhan hanya untuk upacara kerajaan", "perdagangan tidak berperan besar"],
+                correct: 0
+            },
+            {
+                question: "Cirebon dan Banten memiliki akar yang sama dengan Demak. Hal ini mencerminkan …",
+                options: ["penyebaran Islam melalui jaringan politik antar kerajaan", "persaingan pedagang di Jawa Barat", "upaya menandingi Aceh", "pengaruh Hindu masih kuat"],
+                correct: 0
+            },
+            {
+                question: "Rempah-rempah menjadi komoditas utama Ternate dan Tidore karena …",
+                options: ["bernilai tinggi di pasar internasional", "mudah didapat di seluruh Nusantara", "digunakan untuk ritual kerajaan", "hanya laku di pasar lokal"],
+                correct: 0
+            },
+            {
+                question: "Persaingan Ternate dan Tidore melemahkan keduanya karena …",
+                options: ["memecah kekuatan menghadapi bangsa Eropa", "memperkuat kerja sama dagang", "memperluas wilayah kekuasaan", "meningkatkan produksi rempah"],
+                correct: 0
+            },
+            {
+                question: "Sultan Baabullah dikenal sebagai raja Ternate yang …",
+                options: ["mengusir Portugis dan memperluas wilayah maritim", "bersekutu dengan Belanda", "memperdagangkan budak", "menjadikan Ternate agraris"],
+                correct: 0
+            },
+            {
+                question: "Sultan Nuku dari Tidore dianggap pahlawan karena …",
+                options: ["berhasil menyatukan Ternate dan Tidore melawan Belanda", "menjual rempah kepada VOC", "memperluas wilayah hingga Filipina", "berpihak kepada Portugis"],
+                correct: 0
+            },
+            {
+                question: "Kerajaan Gowa-Tallo menjadi kuat karena …",
+                options: ["menguasai jalur perdagangan laut timur", "menjalin aliansi dengan VOC", "fokus pada pertanian", "menutup diri dari dunia luar"],
+                correct: 0
+            },
+            {
+                question: "Sultan Hasanuddin dijuluki Ayam Jantan dari Timur karena …",
+                options: ["keberaniannya melawan VOC", "kekayaannya luar biasa", "kesalehan dan kealimannya", "berhasil berdagang dengan Eropa"],
+                correct: 0
+            },
+            {
+                question: "Kekalahan Gowa-Tallo dalam Perang Makassar menunjukkan …",
+                options: ["kekuatan kolonial VOC semakin besar", "lemahnya agama Islam di timur", "VOC tidak berpengaruh di Sulawesi", "Gowa tidak punya pelabuhan"],
+                correct: 0
+            },
+            {
+                question: "Persamaan antara Aceh, Demak, dan Ternate adalah …",
+                options: ["sama-sama pusat perdagangan dan penyebaran Islam", "berorientasi agraris", "bergantung pada VOC", "kerajaan Hindu yang berubah"],
+                correct: 0
+            },
+            {
+                question: "Islam cepat berkembang di wilayah maritim karena …",
+                options: ["sifat ajarannya terbuka dan mudah diterima pedagang", "dipaksakan oleh pemerintah", "tidak berhubungan dengan perdagangan", "hanya disebarkan oleh ulama lokal"],
+                correct: 0
+            },
+            {
+                question: "Kejatuhan Malaka ke tangan Portugis mengubah peta perdagangan Asia Tenggara karena …",
+                options: ["pusat ekonomi berpindah ke kerajaan Islam lainnya", "perdagangan Islam berhenti total", "pedagang Muslim pindah ke Eropa", "Portugis menghapus sistem Islam"],
+                correct: 0
+            },
+            {
+                question: "Salah satu bukti kerajaan maritim Islam menguasai laut adalah …",
+                options: ["adanya armada dagang dan pelabuhan besar", "pengembangan sawah luas", "bangunan candi megah", "masyarakatnya berpindah-pindah"],
+                correct: 0
+            },
+            {
+                question: "Keberhasilan kerajaan maritim Islam menunjukkan kemampuan bangsa Indonesia dalam …",
+                options: ["berdagang dan membangun jaringan global", "menolak pengaruh asing", "bergantung pada Eropa", "membangun candi"],
+                correct: 0
+            },
+            {
+                question: "Kejayaan maritim Nusantara berakhir karena …",
+                options: ["monopoli perdagangan oleh bangsa Eropa", "kesuburan tanah berkurang", "letak pelabuhan bergeser ke darat", "penduduk berkurang"],
+                correct: 0
+            },
+            {
+                question: "Hubungan antara letak geografis dan kemajuan ekonomi pada masa kerajaan maritim Islam adalah …",
+                options: ["semakin strategis letaknya, semakin maju ekonominya", "kerajaan di pedalaman lebih makmur", "laut menghambat perdagangan", "pelabuhan hanya bersifat simbolik"],
+                correct: 0
+            },
+            {
+                question: "Salah satu bentuk integrasi budaya maritim Islam adalah …",
+                options: ["tradisi upacara laut yang mengandung doa Islam", "meniru budaya Hindu-Buddha", "menolak akulturasi", "hanya berdagang sesama Muslim"],
+                correct: 0
+            },
+            {
+                question: "Penyebaran Islam melalui perdagangan menunjukkan bahwa …",
+                options: ["Islam berkembang damai dan adaptif", "Islam disebarkan dengan perang", "pedagang asing menolak budaya lokal", "masyarakat pesisir tertutup"],
+                correct: 0
+            },
+            {
+                question: "Mengapa kerajaan maritim Islam mudah menjalin hubungan dengan luar negeri?",
+                options: ["karena memiliki pelabuhan dan armada laut kuat", "karena dikuasai VOC", "karena tidak ada pesaing", "karena bergantung pada pertanian"],
+                correct: 0
+            },
+            {
+                question: "Kemunduran kerajaan-kerajaan Islam maritim memperlihatkan bahwa …",
+                options: ["kekuatan ekonomi tanpa politik tidak bertahan lama", "pertanian lebih penting dari perdagangan", "kolonialisme membawa kemakmuran", "kekuasaan Islam melemah karena bencana alam"],
+                correct: 0
+            },
+            {
+                question: "Apa pelajaran penting dari kejayaan kerajaan maritim Islam?",
+                options: ["Bangsa Indonesia pernah menguasai jalur perdagangan dunia", "Indonesia tidak pernah makmur", "Laut bukan sumber ekonomi", "Kerajaan Islam bersifat tertutup"],
+                correct: 0
+            },
+            {
+                question: "Persaingan antara kerajaan Islam dan bangsa Eropa mencerminkan …",
+                options: ["konflik ekonomi dan ideologi global", "kebencian agama", "perpecahan suku", "ketidaktahuan politik"],
+                correct: 0
+            },
+            {
+                question: "Keberhasilan Aceh bertahan lama dibanding Pasai karena …",
+                options: ["kemampuan beradaptasi dengan situasi politik kolonial", "isolasi dari dunia luar", "kekayaan alam yang lebih besar", "tidak terlibat perang"],
+                correct: 0
+            },
+            {
+                question: "Kejatuhan Demak disebabkan oleh …",
+                options: ["perebutan kekuasaan internal", "serangan VOC", "serangan Portugis", "bencana alam"],
+                correct: 0
+            },
+            {
+                question: "Pengaruh Islam dalam sistem pemerintahan kerajaan maritim terlihat dari …",
+                options: ["penggunaan gelar \"Sultan\"", "pemujaan terhadap dewa", "penobatan raja oleh brahmana", "penggunaan aksara Pallawa"],
+                correct: 0
+            },
+            {
+                question: "Faktor utama penyebab kemunduran kerajaan maritim Islam di timur Indonesia adalah …",
+                options: ["monopoli perdagangan oleh VOC", "kekeringan panjang", "penurunan rempah-rempah", "serangan Majapahit"],
+                correct: 0
+            },
+            {
+                question: "Keberhasilan Islam menyesuaikan diri dengan budaya lokal menunjukkan bahwa …",
+                options: ["Islam bersifat fleksibel dan terbuka", "Islam menolak adat", "Islam meniru Hindu", "Islam menekan budaya lokal"],
+                correct: 0
+            },
+            {
+                question: "Penguasaan laut menjadi kunci utama karena …",
+                options: ["laut adalah jalur utama perdagangan dan pertahanan", "daratan sulit dijangkau", "pertanian tidak berkembang", "VOC tidak suka berdagang di darat"],
+                correct: 0
+            },
+            {
+                question: "Keberhasilan kerajaan maritim Islam membangun jaringan perdagangan internasional membuktikan bahwa …",
+                options: ["Nusantara memiliki peran penting dalam ekonomi global", "Nusantara tertinggal dari Eropa", "Islam hanya berkembang di Arab", "Indonesia bergantung pada kolonial"],
+                correct: 0
+            },
+            {
+                question: "Nilai yang dapat diteladani dari kerajaan maritim Islam di Indonesia adalah …",
+                options: ["semangat dagang, toleransi, dan kerja sama antarbangsa", "menolak budaya asing", "perang tanpa diplomasi", "ketergantungan pada luar negeri"],
+                correct: 0
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let userAnswers = [];
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const question = questions[currentQuestion];
+            
+            // Acak pilihan jawaban
+            const correctAnswer = question.options[question.correct];
+            const shuffledOptions = shuffleArray(question.options);
+            const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
+            
+            const html = `
+                <div class="question-number">Soal ${currentQuestion + 1} dari ${questions.length}</div>
+                <div class="question-text">${question.question}</div>
+                <div class="options">
+                    ${shuffledOptions.map((option, index) => `
+                        <div class="option" onclick="selectAnswer(${index}, ${newCorrectIndex})">
+                            <div class="option-letter">${String.fromCharCode(65 + index)}</div>
+                            <div class="option-text">${option}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="button-container">
+                    ${currentQuestion > 0 ? '<button class="btn btn-secondary" onclick="previousQuestion()">← Sebelumnya</button>' : ''}
+                    ${currentQuestion < questions.length - 1 ? 
+                        '<button class="btn btn-primary" id="nextBtn" disabled onclick="nextQuestion()">Selanjutnya →</button>' :
+                        '<button class="btn btn-primary" id="nextBtn" disabled onclick="showResults()">Lihat Hasil</button>'
+                    }
+                </div>
+            `;
+            
+            document.getElementById('quizContent').innerHTML = html;
+            updateProgress();
+            
+            // Restore previous answer if exists
+            if (userAnswers[currentQuestion] !== undefined) {
+                const options = document.querySelectorAll('.option');
+                options[userAnswers[currentQuestion].selected].classList.add('selected');
+                if (userAnswers[currentQuestion].correct) {
+                    options[userAnswers[currentQuestion].selected].classList.add('correct');
+                } else {
+                    options[userAnswers[currentQuestion].selected].classList.add('wrong');
+                    options[userAnswers[currentQuestion].correctIndex].classList.add('correct');
+                }
+                options.forEach(opt => opt.classList.add('disabled'));
+                document.getElementById('nextBtn').disabled = false;
+                answered = true;
+            }
+        }
+
+        function selectAnswer(selectedIndex, correctIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const options = document.querySelectorAll('.option');
+            
+            options[selectedIndex].classList.add('selected');
+            
+            if (selectedIndex === correctIndex) {
+                options[selectedIndex].classList.add('correct');
+                if (userAnswers[currentQuestion] === undefined) {
+                    score++;
+                    updateScore();
+                }
+                userAnswers[currentQuestion] = { selected: selectedIndex, correct: true, correctIndex };
+            } else {
+                options[selectedIndex].classList.add('wrong');
+                options[correctIndex].classList.add('correct');
+                userAnswers[currentQuestion] = { selected: selectedIndex, correct: false, correctIndex };
+            }
+            
+            options.forEach(option => option.classList.add('disabled'));
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (!answered) return;
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateScore() {
+            document.getElementById('scoreDisplay').textContent = `Skor: ${score} / ${questions.length}`;
+        }
+
+        function showResults() {
+            const percentage = (score / questions.length * 100).toFixed(1);
+            let emoji = '🎉';
+            let message = 'Luar Biasa!';
+            
+            if (percentage < 50) {
+                emoji = '📚';
+                message = 'Tetap Semangat!';
+            } else if (percentage < 70) {
+                emoji = '👍';
+                message = 'Bagus!';
+            } else if (percentage < 90) {
+                emoji = '🌟';
+                message = 'Hebat!';
+            }
+            
+            const html = `
+                <div class="result-container">
+                    <div class="emoji">${emoji}</div>
+                    <div class="result-score">${percentage}%</div>
+                    <div class="result-text">${message}</div>
+                    <div class="result-details">
+                        <div class="result-detail">
+                            <span>Total Soal:</span>
+                            <strong>${questions.length}</strong>
+                        </div>
+                        <div class="result-detail">
+                            <span>Jawaban Benar:</span>
+                            <strong style="color: #10b981;">${score}</strong>
+                        </div>
+                        <div class="result-detail">
+                            <span>Jawaban Salah:</span>
+                            <strong style="color: #ef4444;">${questions.length - score}</strong>
+                        </div>
+                        <div class="result-detail">
+                            <span>Persentase:</span>
+                            <strong>${percentage}%</strong>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="restartQuiz()" style="width: 100%;">🔄 Ulangi Quiz</button>
+                </div>
+            `;
+            
+            document.getElementById('quizContent').innerHTML = html;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            userAnswers = [];
+            updateScore();
+            loadQuestion();
+        }
+
+        // Inisialisasi quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
